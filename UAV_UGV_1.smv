@@ -1,0 +1,87 @@
+MODULE uav_two(other,uav1)
+VAR
+	state: {launch,path_following,path_planning,re_routing,reconnecting,faulty,land};  
+ASSIGN 
+	init(state):=launch;
+	
+	next(state):= case
+
+			state=launch & (other=start) : path_following;
+			
+			state=(path_following) & (other=arrived): land;
+			state=(path_following) & (other=faulty): land;
+			state=(path_following) & (other=obstacle_avoidance) : re_routing;
+			state=path_following & (uav1=faulty): path_planning;
+			state= path_planning : path_following;
+			state=re_routing : {path_following, land};
+			state=(path_following) & (other=GPS_deadlock) : reconnecting;
+			state=reconnecting :{path_following, land};
+			state=faulty : land;
+			TRUE : state;
+		       esac;
+
+MODULE uav_one(other,uav2)
+VAR
+	state: {launch,path_planning,re_routing,reconnecting,faulty,land};  
+
+ASSIGN 
+	init(state):=launch;
+	
+	next(state):= case
+
+			state=launch & (other=start) : path_planning;
+			
+			state=path_planning & (other=arrived): land;
+			state=path_planning & (other=faulty): land;
+			state=path_planning & (other=obstacle_avoidance) : re_routing;
+			state=re_routing : {path_planning, land};
+			state=path_planning & (other=GPS_deadlock) : reconnecting;
+			state=reconnecting :{path_planning, land};
+			state=faulty : land;
+			TRUE : state;
+		       esac;
+
+
+
+MODULE main
+VAR
+
+	uav1: uav_one(ugv, uav2.state);
+	uav2: uav_two(ugv, uav1.state);
+	ugv: {start,path_following,obstacle_avoidance,GPS_deadlock,faulty,stop,arrived};
+
+
+ASSIGN
+	init(ugv):=start;
+
+	next(ugv):= case
+	
+			ugv=start : path_following;
+			ugv = path_following & (uav1.state=faulty) & (uav2.state=faulty) : stop;
+			ugv = path_following & (uav1.state=land) & (uav2.state=land) : stop;
+			ugv = obstacle_avoidance & ((uav1.state=path_planning)|(uav2.state=path_planning)) : path_following;
+			ugv = GPS_deadlock & ((uav1.state=path_planning)|(uav2.state=path_planning)) : path_following;
+			ugv = faulty : stop;
+			ugv = arrived : stop;
+			TRUE : ugv;
+		      esac;
+  
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

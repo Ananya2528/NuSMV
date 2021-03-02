@@ -1,0 +1,70 @@
+MODULE uav_one(other)
+VAR
+	state: {launch,path_following,re_routing,reconnecting,faulty,land};  
+ASSIGN 
+	init(state):=launch;
+	
+	next(state):= case
+
+			state=launch & (other=start) : path_following;
+			
+			state=path_following & (other=arrived): land;
+			state=path_following & (other=faulty): land;
+			state=path_following & (other=obstacle_avoidance) : re_routing;
+			state=re_routing : {path_following, land};
+			state=path_following & (other=GPS_deadlock) : reconnecting;
+			state=reconnecting :{path_following, land};
+			state=faulty : land;
+			TRUE : state;
+		       esac;
+
+MODULE uav_two(other)
+VAR
+	state: {launch,path_following,re_routing,reconnecting,faulty,land};  
+ASSIGN 
+	init(state):=launch;
+	
+	next(state):= case
+
+			state=launch & (other=start) : path_following;
+			
+			state=path_following & (other=arrived): land;
+			state=path_following & (other=faulty): land;
+			state=path_following & (other=obstacle_avoidance) : re_routing;
+			state=re_routing : {path_following, land};
+			state=path_following & (other=GPS_deadlock) : reconnecting;
+			state=reconnecting :{path_following, land};
+			state=faulty : land;
+			TRUE : state;
+		       esac;
+
+
+MODULE main
+VAR
+
+	uav1: uav_one(ugv);
+	uav2: uav_two(ugv);
+	ugv: {start,path_following,obstacle_avoidance,GPS_deadlock,faulty,stop,arrived};
+
+
+ASSIGN
+	init(ugv):=start;
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

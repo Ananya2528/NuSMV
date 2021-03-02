@@ -1,0 +1,79 @@
+MODULE av_main (other)
+VAR
+	state: {engine_on, engine_off}; 
+	action: {key_on, key_off}; 
+	
+ASSIGN 
+	init(state):=engine_off;
+	
+	next(state):= case
+
+			state=engine_off & (action=key_on): engine_on;
+			state=engine_on & (action=key_off): engine_off;
+			TRUE : state;
+		       esac;
+
+MODULE engine_on ()
+VAR
+	state: {ACC,Lane_Maintenance,Driver_attentiveness};
+
+ASSIGN
+	init(state):= {ACC,Lane_Maintenance,Driver_attentiveness};
+
+
+MODULE ACC ()
+VAR
+	state: {drive,gap};
+ASSIGN
+	init(state):= {drive,gap};
+
+MODULE Lane_Maintenance ()
+VAR
+	state: {inactive, active};
+	action: {lc_active, lc_inactive};
+
+ASSIGN
+	init(state):= {inactive};
+	
+	next(state):= case
+			
+			state=inactive & (action=lc_active): active;
+			state= active & (action=lc_inactive): inactive;
+			TRUE : state;
+		      esac;
+
+
+MODULE Driver_attentiveness ()
+
+VAR
+	state: {attentive, inattentive};
+	action: {steering_held, steering_unheld};
+
+ASSIGN
+
+	init(state):= {attentive};
+	
+	next(state):= case
+			
+			state=attentive & (action=steering_unheld): inattentive;
+			state=inattentive & (action=steering_held): attentive;
+			TRUE : state;
+		      esac;
+
+MODULE main()
+
+VAR
+
+	acc: ACC;
+	lane_maintenance: Lane_Maintenance;
+	driver_attentiveness: Driver_attentiveness;
+
+
+
+
+
+
+
+
+
+
