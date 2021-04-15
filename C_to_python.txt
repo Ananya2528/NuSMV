@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+
+import sys
+import os.path
+import re
+
+def source(filename):
+    suffixes = ('.cpp', '.c')
+    for s in suffixes:
+        if filename.endswith(s):
+            return True
+    return False
+
+
+-------------   codecode(param, param);   >>>>>    codecode(param, param)  ------------------------
+                
+
+
+def process_line(line):
+
+    line = re.sub(';([\r\n]?)$', '\\1', line)           # remove semicolon from the end of line
+
+
+
+-------------   remove strings containing opening and closing bracket   ---------------------------------------
+
+        if (arg)					if (arg)
+        {   /code   }               >>>>>	 	    /code
+              
+
+
+
+    line = re.sub('\s*{\n$', '', line)
+    line = re.sub('\s*}$', '', line)
+
+-------------- replacing comment signs  ---------------
+
+    line = re.sub('/\*', "'''", line)
+    line = re.sub('\*/', "'''", line)
+
+
+------------- replace || with 'or' -------------------
+
+
+    line = re.sub('\|\|', 'or', line)
+    
+
+
+------------- replace && with 'and' -------------------
+
+    
+    line = re.sub('&&', 'and', line)
+
+-------------- replace '!' with 'not' -----------------
+
+
+    line = re.sub('!', 'not', line)
+
+-------------- replace 'false' with 'False' --------------
+
+
+   line = re.sub('false', 'False', line)
+
+
+-------------- replace 'true' with 'True' -----------------
+
+
+    line = re.sub('true', 'True', line)
+
+
+-------------- remove "const" word from the middle of string --------------------
+
+const int result = a.exec();    >>>>>      int result = a.exec();
+              
+
+    line = re.sub('const ', ' ', line)
+
+
+--------------- remove brackets around if statement and add colon ----------------
+
+ if (i = 4)      >>>>>        if i = 4:
+
+
+    line = re.sub('if\s*\((.*)\)$', 'if \\1:', line)
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
